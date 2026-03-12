@@ -179,4 +179,23 @@ router.post("/add-user", authMiddleware, async (req: Request, res: Response): Pr
   }
 });
 
+router.get("/users", authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const tenantId = req.tenantId!;
+    const users = await prisma.user.findMany({
+      where: { tenantId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;

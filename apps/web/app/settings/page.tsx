@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth, api } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { UserPlus, Shield, Mail, Lock, User as UserIcon, Loader2 } from "lucide-react";
@@ -16,6 +16,25 @@ export default function SettingsPage() {
     email: "",
     password: "",
   });
+  const [team, setTeam] = useState<any[]>([]);
+  const [isTeamLoading, setIsTeamLoading] = useState(true);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get("/auth/users");
+      setTeam(res.data);
+    } catch (error) {
+      console.error("Failed to fetch team members", error);
+    } finally {
+      setIsTeamLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchUsers();
+    }
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -41,6 +60,7 @@ export default function SettingsPage() {
       await api.post("/auth/add-user", formData);
       toast.success("User added successfully!");
       setFormData({ name: "", email: "", password: "" });
+      fetchUsers();
     } catch (error: any) {
       const message = error.response?.data?.error || "Failed to add user";
       toast.error(message);
@@ -159,6 +179,44 @@ export default function SettingsPage() {
                   </button>
                 </div>
               </form>
+            </section>
+
+            <section className="bg-white border border-stone-200 rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-6 py-5 border-b border-stone-100">
+                <h2 className="text-lg font-semibold text-stone-900">Active Team Members</h2>
+                <p className="text-sm text-stone-500">
+                  People who currently have access to {user.tenantName}.
+                </p>
+              </div>
+
+              <div className="divide-y divide-stone-100">
+                {isTeamLoading ? (
+                  <div className="p-12 text-center">
+                    <Loader2 className="animate-spin mx-auto text-stone-400" size={24} />
+                  </div>
+                ) : team.length === 0 ? (
+                  <div className="p-12 text-center text-stone-500">
+                    No team members found.
+                  </div>
+                ) : (
+                  team.map((member) => (
+                    <div key={member.id} className="px-6 py-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center text-stone-600 font-semibold border border-stone-200">
+                          {member.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-stone-900">{member.name}</p>
+                          <p className="text-sm text-stone-500">{member.email}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md font-medium">
+                        Member
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
             </section>
 
             <section className="bg-stone-100 border border-stone-200 rounded-2xl p-6">
