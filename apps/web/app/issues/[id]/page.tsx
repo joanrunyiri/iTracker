@@ -5,7 +5,6 @@ import { useAuth, api } from "../../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Clock, History, AlertCircle } from "lucide-react";
 import Navbar from "../../components/Navbar";
-import Link from "next/link";
 import { formatDistanceToNow, format } from "date-fns";
 import toast from "react-hot-toast";
 

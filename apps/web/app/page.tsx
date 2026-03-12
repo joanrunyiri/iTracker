@@ -10,7 +10,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
 export default function Dashboard() {
-  const { user, token, isLoading, logout } = useAuth();
+  const { user, token, isLoading } = useAuth();
   const router = useRouter();
   const [issues, setIssues] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
